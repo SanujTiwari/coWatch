@@ -1,0 +1,32 @@
+.dash-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; flex-wrap:wrap; gap:20px; }
+.dash-header h1 { font-size:1.8rem; font-weight:800; }
+.dash-subtitle { color:var(--text-secondary); margin-top:6px; }
+.dash-actions { display:flex; gap:12px; }
+.dash-modal { padding:28px; margin-bottom:28px; overflow:hidden; }
+.dash-modal h3 { margin-bottom:16px; font-size:1.1rem; }
+.modal-form { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.modal-form .input-field { flex:1; min-width:200px; }
+
+.rooms-section h2 { font-size:1.3rem; font-weight:700; margin-bottom:20px; }
+.rooms-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; }
+.room-card { padding:24px; }
+.room-card:hover { transform:translateY(-3px); }
+.room-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.room-card-header h3 { font-size:1rem; font-weight:700; }
+.room-token { display:flex; align-items:center; gap:8px; padding:10px 14px; background:rgba(0,0,0,.3); border-radius:var(--radius-sm); margin-bottom:14px; }
+.room-token code { font-family:monospace; font-size:.9rem; color:var(--primary-light); letter-spacing:2px; font-weight:600; flex:1; }
+.room-participants { display:flex; align-items:center; gap:-4px; margin-bottom:16px; }
+.mini-avatar { width:30px; height:30px; border-radius:50%; background:var(--gradient-primary); display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700; color:white; border:2px solid var(--bg-primary); margin-left:-6px; }
+.mini-avatar:first-child { margin-left:0; }
+.more-count { font-size:.75rem; color:var(--text-muted); margin-left:6px; }
+.room-card-actions { display:flex; gap:8px; }
+
+.empty-state { text-align:center; padding:60px 24px; color:var(--text-muted); }
+.empty-state h3 { margin:16px 0 8px; color:var(--text-primary); }
+.empty-state p { font-size:.9rem; }
+
+@media(max-width:768px) {
+  .dash-header { flex-direction:column; }
+  .dash-actions { width:100%; }
+  .dash-actions .btn { flex:1; }
+}

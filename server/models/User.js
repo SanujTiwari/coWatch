@@ -59,6 +59,14 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    defaultValue: null,
+  },
 }, {
   timestamps: true,
   hooks: {

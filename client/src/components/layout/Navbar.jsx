@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getAvatarUrl } from '../../api';
 import { motion } from 'framer-motion';
-import { FiLogOut, FiUser, FiHome, FiGrid } from 'react-icons/fi';
+import { FiLogOut, FiUser, FiHome, FiGrid, FiUsers, FiSettings } from 'react-icons/fi';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -36,10 +37,18 @@ const Navbar = () => {
                 <FiGrid size={18} />
                 <span>Dashboard</span>
               </Link>
+              <Link to="/friends" className="nav-link" id="nav-friends">
+                <FiUsers size={18} />
+                <span>Friends</span>
+              </Link>
+              <Link to="/profile" className="nav-link" id="nav-profile">
+                <FiUser size={18} />
+                <span>Profile</span>
+              </Link>
               <div className="nav-user">
                 <div className="user-avatar">
                   {user?.avatar ? (
-                    <img src={user.avatar} alt={user.name} />
+                    <img src={getAvatarUrl(user.avatar)} alt={user.name} />
                   ) : (
                     <span>{user?.name?.charAt(0)?.toUpperCase()}</span>
                   )}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { roomAPI } from '../api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,7 @@ import './Dashboard.css';
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [rooms, setRooms] = useState([]);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
@@ -18,7 +19,15 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [copiedToken, setCopiedToken] = useState('');
 
-  useEffect(() => { fetchRooms(); }, []);
+  useEffect(() => {
+    fetchRooms();
+    const invite = sessionStorage.getItem('cowatch_invite');
+    if (invite) {
+      setJoinToken(invite);
+      setShowJoin(true);
+      sessionStorage.removeItem('cowatch_invite');
+    }
+  }, []);
 
   const fetchRooms = async () => {
     try {
@@ -43,7 +52,7 @@ const Dashboard = () => {
     setLoading(true); setError('');
     try {
       const res = await roomAPI.join(joinToken);
-      navigate(`/room/${res.data.room._id}`);
+      navigate(`/room/${res.data.room.id}`);
     } catch (err) { setError(err.response?.data?.message || 'Failed to join room'); }
     finally { setLoading(false); }
   };
@@ -57,7 +66,7 @@ const Dashboard = () => {
   const deleteRoom = async (id) => {
     try {
       await roomAPI.deleteRoom(id);
-      setRooms(prev => prev.filter(r => r._id !== id));
+      setRooms(prev => prev.filter(r => r.id !== id));
     } catch (err) { console.error(err); }
   };
 
@@ -74,6 +83,7 @@ const Dashboard = () => {
             <button className="btn btn-secondary" onClick={() => { setShowJoin(true); setShowCreate(false); }} id="dash-join"><FiKey /> Join Room</button>
           </div>
         </motion.div>
+        {location.state?.notice && <p role="status">{location.state.notice}</p>}
 
         <AnimatePresence>
           {showCreate && (
@@ -109,7 +119,7 @@ const Dashboard = () => {
           ) : (
             <div className="rooms-grid">
               {rooms.map((room, i) => (
-                <motion.div key={room._id} className="room-card glass-card" initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay: i * 0.05 }}>
+                <motion.div key={room.id} className="room-card glass-card" initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay: i * 0.05 }}>
                   <div className="room-card-header">
                     <h3>{room.name}</h3>
                     <span className="badge badge-success">{room.participants?.length || 0} online</span>
@@ -122,14 +132,14 @@ const Dashboard = () => {
                   </div>
                   <div className="room-participants">
                     {room.participants?.slice(0, 5).map(p => (
-                      <div key={p._id} className="mini-avatar" title={p.name}>{p.name?.charAt(0)}</div>
+                      <div key={p.id} className="mini-avatar" title={p.name}>{p.name?.charAt(0)}</div>
                     ))}
                     {room.participants?.length > 5 && <span className="more-count">+{room.participants.length - 5}</span>}
                   </div>
                   <div className="room-card-actions">
-                    <button className="btn btn-primary btn-sm" onClick={() => navigate(`/room/${room._id}`)}><FiPlay /> Enter</button>
-                    {room.host?._id === user?._id && (
-                      <button className="btn btn-ghost btn-sm" onClick={() => deleteRoom(room._id)}><FiTrash2 /></button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate(`/room/${room.id}`)}><FiPlay /> Enter</button>
+                    {room.host?.id === user?.id && (
+                      <button className="btn btn-ghost btn-sm" onClick={() => deleteRoom(room.id)}><FiTrash2 /></button>
                     )}
                   </div>
                 </motion.div>

@@ -53,6 +53,26 @@ export const AuthProvider = ({ children }) => {
     return newUser;
   };
 
+  const forgotPassword = async (email) => {
+    const res = await authAPI.forgotPassword(email);
+    return res.data;
+  };
+
+  const resetPassword = async (token, password) => {
+    const res = await authAPI.resetPassword(token, password);
+    return res.data;
+  };
+
+  const uploadAvatar = async (file) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const res = await authAPI.uploadAvatar(formData);
+    const updatedUser = res.data.user;
+    setUser(updatedUser);
+    localStorage.setItem('cowatch_user', JSON.stringify(updatedUser));
+    return updatedUser;
+  };
+
   const logout = () => {
     localStorage.removeItem('cowatch_token');
     localStorage.removeItem('cowatch_user');
@@ -74,6 +94,9 @@ export const AuthProvider = ({ children }) => {
       register,
       logout,
       updateUser,
+      uploadAvatar,
+      forgotPassword,
+      resetPassword,
       isAuthenticated: !!user,
     }}>
       {children}

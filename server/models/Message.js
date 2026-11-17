@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const User = require('./User');
-const Room = require('./Room');
 
 const Message = sequelize.define('Message', {
   id: {
@@ -26,6 +24,15 @@ const Message = sequelize.define('Message', {
       key: 'id',
     },
   },
+  replyToId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: 'Messages',
+      key: 'id',
+    },
+    onDelete: 'SET NULL',
+  },
   content: {
     type: DataTypes.TEXT,
     allowNull: false,
@@ -46,11 +53,5 @@ const Message = sequelize.define('Message', {
     },
   ],
 });
-
-// Associations
-Message.belongsTo(Room, { foreignKey: 'roomId' });
-Message.belongsTo(User, { as: 'sender', foreignKey: 'senderId' });
-Room.hasMany(Message, { foreignKey: 'roomId', onDelete: 'CASCADE' });
-User.hasMany(Message, { as: 'sentMessages', foreignKey: 'senderId' });
 
 module.exports = Message;

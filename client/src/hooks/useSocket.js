@@ -1,15 +1,15 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { io } from 'socket.io-client';
-
-const SOCKET_URL = 'http://localhost:5000';
+import { API_ORIGIN } from '../api';
 
 export const useSocket = (token) => {
   const socketRef = useRef(null);
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
     if (!token) return;
 
-    socketRef.current = io(SOCKET_URL, {
+    socketRef.current = io(API_ORIGIN, {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -17,8 +17,10 @@ export const useSocket = (token) => {
       reconnectionAttempts: 10,
     });
 
-    socketRef.current.on('connect', () => {
-      console.log('🔌 Socket connected:', socketRef.current.id);
+    socketRef.current.on('connect', () => setConnected(true));
+    socketRef.current.on('disconnect', (reason) => {
+      setConnected(false);
+      if (reason === 'io server disconnect') socketRef.current?.connect();
     });
 
     socketRef.current.on('connect_error', (err) => {
@@ -33,9 +35,11 @@ export const useSocket = (token) => {
   }, [token]);
 
   const emit = useCallback((event, data) => {
-    if (socketRef.current) {
+    if (socketRef.current?.connected) {
       socketRef.current.emit(event, data);
+      return true;
     }
+    return false;
   }, []);
 
   const on = useCallback((event, handler) => {
@@ -50,5 +54,5 @@ export const useSocket = (token) => {
     }
   }, []);
 
-  return { socket: socketRef.current, emit, on, off };
+  return { socket: socketRef.current, connected, emit, on, off };
 };

@@ -1,7 +1,7 @@
 # Environment variables
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # Node modules
 node_modules/
@@ -30,11 +30,6 @@ dist/
 build/
 out/
 
-# Dependencies
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
 # Temporary files
 temp/
 tmp/
@@ -61,6 +56,10 @@ Thumbs.db
 # Testing
 coverage/
 .nyc_output/
+e2e-results/
+test-results/
+playwright-report/
+server/uploads/
 
 # Misc
 *.pem

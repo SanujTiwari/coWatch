@@ -10,30 +10,43 @@ const sequelize = new Sequelize(DATABASE_URL, {
     acquire: 30000,
     idle: 10000,
   },
-  ssl: true,
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false,
+      rejectUnauthorized: true,
     },
+    connectionTimeoutMillis: process.env.E2E_TEST_MODE === '1' ? 10000 : 0,
   },
 });
 
+// Sequelize applies connection-string SSL settings after the supplied options.
+const sslOptions = sequelize.options.dialectOptions.ssl;
+if (sslOptions && typeof sslOptions === 'object') {
+  delete sslOptions.checkServerIdentity;
+  sslOptions.rejectUnauthorized = true;
+} else {
+  sequelize.options.dialectOptions.ssl = { rejectUnauthorized: true };
+}
+
+// Export sequelize early so models can require it without a circular dependency.
+module.exports = { sequelize };
+
 const connectDB = async () => {
+  // Load all models and associations before syncing
+  require('../models');
+
   try {
     await sequelize.authenticate();
     console.log(`✅ PostgreSQL connected successfully`);
-    
-    // Sync models with database (creates tables if they don't exist)
+
     await sequelize.sync({ alter: false });
     console.log(`✅ Database models synced`);
-    
+
     return true;
   } catch (error) {
     console.error(`❌ PostgreSQL connection error: ${error.message}`);
-    console.warn(`⚠️  Server will start but database features won't work.`);
-    return false;
+    throw error;
   }
 };
 
-module.exports = { sequelize, connectDB };
+module.exports.connectDB = connectDB;

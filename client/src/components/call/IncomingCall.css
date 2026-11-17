@@ -1,0 +1,22 @@
+.incoming-call {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  width: min(360px, calc(100vw - 40px));
+  padding: 18px;
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-lg);
+}
+.incoming-call-person { display: flex; align-items: center; gap: 12px; }
+.incoming-call-person img, .incoming-call-person > span {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: grid;
+  place-items: center;
+  background: var(--gradient-primary);
+}
+.incoming-call-person p { color: var(--text-secondary); font-size: .85rem; }
+.incoming-call-actions { display: flex; gap: 8px; margin-top: 14px; }

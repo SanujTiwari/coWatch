@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/db');
-const User = require('./User');
 
 const Room = sequelize.define('Room', {
   id: {
@@ -69,12 +68,32 @@ const Room = sequelize.define('Room', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+
+  roomType: {
+    type: DataTypes.ENUM('couple', 'friends', 'group', 'public'),
+    defaultValue: 'group',
+  },
 }, {
   timestamps: true,
 });
 
-// Association with User
-Room.belongsTo(User, { as: 'host', foreignKey: 'hostId' });
-User.hasMany(Room, { as: 'hostedRooms', foreignKey: 'hostId' });
+Object.defineProperty(Room.prototype, 'currentMedia', {
+  enumerable: true,
+  get() {
+    return {
+      title: this.getDataValue('currentMediaTitle') || '',
+      url: this.getDataValue('currentMediaUrl') || '',
+      type: this.getDataValue('currentMediaType') || 'video',
+      currentTime: this.getDataValue('currentMediaTime') || 0,
+      isPlaying: this.getDataValue('isMediaPlaying') || false,
+    };
+  },
+});
+
+Room.prototype.toJSON = function () {
+  const values = Object.assign({}, this.get());
+  values.currentMedia = this.currentMedia;
+  return values;
+};
 
 module.exports = Room;

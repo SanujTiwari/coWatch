@@ -17,32 +17,35 @@ exports.createRoom = async (req, res, next) => {
 
     const token = generateRoomToken();
 
-    const room = await Room.create({
-      name: name || `${req.user.name}'s Room`,
-      token,
-      hostId: req.user.id,
-      maxParticipants: maxParticipants || 10,
-      theme: theme || 'default',
-      isPrivate: isPrivate !== false,
-      roomType: roomType || 'group',
-    });
+    const room = await sequelize.transaction(async (transaction) => {
+      const created = await Room.create({
+        name: name || `${req.user.name}'s Room`,
+        token,
+        hostId: req.user.id,
+        maxParticipants: maxParticipants || 10,
+        theme: theme || 'default',
+        isPrivate: isPrivate !== false,
+        roomType: roomType || 'group',
+      }, { transaction });
 
-    // Add host as a participant with host role
-    await RoomParticipant.create({
-      roomId: room.id,
-      userId: req.user.id,
-      role: 'host',
-    });
+      await RoomParticipant.create({
+        roomId: created.id,
+        userId: req.user.id,
+        role: 'host',
+      }, { transaction });
 
-    await room.reload({
-      include: [
-        { association: 'host', attributes: participantAttributes },
-        {
-          association: 'participants',
-          attributes: participantAttributes,
-          through: { attributes: ['role', 'chatMuted'], where: { isRemoved: false } },
-        },
-      ],
+      await created.reload({
+        include: [
+          { association: 'host', attributes: participantAttributes },
+          {
+            association: 'participants',
+            attributes: participantAttributes,
+            through: { attributes: ['role', 'chatMuted'], where: { isRemoved: false } },
+          },
+        ],
+        transaction,
+      });
+      return created;
     });
 
     res.status(201).json({ room });
